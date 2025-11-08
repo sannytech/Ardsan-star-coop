@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ardsanstar Cooperative — Member Sign-Up</title>
+  <style>
+    body {
+      margin: 0; font-family: Inter, sans-serif; background: #0b1628;
+      color: #e6eef6; display: flex; align-items: center; justify-content: center; height: 100vh;
+    }
+    .card {
+      background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px;
+      width: 100%; max-width: 420px; box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+    input, button {
+      width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #e6eef6;
+    }
+    button { background: #06b6d4; color: #052027; font-weight: bold; cursor: pointer; border: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Ardsanstar Cooperative</h2>
+    <h3>Member Sign-Up</h3>
+    <form id="signup-form">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="text" id="phone" placeholder="Phone Number" required>
+      <input type="email" id="email" placeholder="Email Address" required>
+      <input type="text" id="ippis" placeholder="IPPIS Number" required>
+      <input type="text" id="department" placeholder="Department" required>
+      <input type="text" id="designation" placeholder="Designation" required>
+      <input type="password" id="adminCode" placeholder="Enter Admin Code" required>
+      <button type="submit">Submit for Approval</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ✅ Replace this with your Firebase project configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const ADMIN_CODE = "ARDSAN123";
+
+    const form = document.getElementById("signup-form");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const ippis = document.getElementById("ippis").value.trim();
+      const department = document.getElementById("department").value.trim();
+      const designation = document.getElementById("designation").value.trim();
+      const adminCode = document.getElementById("adminCode").value.trim();
+
+      if (adminCode !== ADMIN_CODE) {
+        alert("Invalid Admin Code. Please check and try again.");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "memberApplications"), {
+          name, phone, email, ippis, department, designation,
+          status: "pending",
+          createdAt: serverTimestamp()
+        });
+        alert("✅ Application submitted successfully for admin approval!");
+        form.reset();
+      } catch (error) {
+        console.error("Error:", error);
+        alert("⚠️ Failed to submit application. See console for details.");
+      }
+    });
+  </script>
+</body>
+</html>
